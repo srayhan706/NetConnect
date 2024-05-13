@@ -34,7 +34,7 @@ class Group:
 			if member != username:
 				self.clients[member].send(bytes(username + ": " + message,"utf-8"))
 
-def pyconChat(client, username, groupname):
+def Chat(client, username, groupname):
 	while True:
 		msg = client.recv(1024).decode("utf-8")
 		if msg == "/viewRequests":
@@ -172,13 +172,13 @@ def handshake(client):
 		else:
 			groups[groupname].joinRequests.add(username)
 			groups[groupname].waitClients[username] = client
-			groups[groupname].sendMessage(username+" has requested to join the group.","PyconChat")
+			groups[groupname].sendMessage(username+" has requested to join the group.","NetConnect")
 			client.send(b"/wait")
 			print("Join Request:",username,"| Group:",groupname)
-		threading.Thread(target=pyconChat, args=(client, username, groupname,)).start()
+		threading.Thread(target=Chat, args=(client, username, groupname,)).start()
 	else:
 		groups[groupname] = Group(username,client)
-		threading.Thread(target=pyconChat, args=(client, username, groupname,)).start()
+		threading.Thread(target=Chat, args=(client, username, groupname,)).start()
 		client.send(b"/adminReady")
 		print("New Group:",groupname,"| Admin:",username)
 
@@ -190,7 +190,7 @@ def main():
 	listenSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	listenSocket.bind((sys.argv[1], int(sys.argv[2])))
 	listenSocket.listen(10)
-	print("PyconChat Server running")
+	print("NetConnect Server is running")
 	while True:
 		client,_ = listenSocket.accept()
 		threading.Thread(target=handshake, args=(client,)).start()
